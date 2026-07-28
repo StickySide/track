@@ -28,30 +28,22 @@ fn main() {
     list(&habits)
 }
 
-enum _Action {
-    Add,
-    Remove,
-    Complete,
-}
-
 fn parse(mut args: Args) -> Result<(String, String), &'static str> {
     let action = match args.nth(1) {
         Some(x) => x,
         None => return Err("No arguments provided"),
     };
 
-    if action != "list" {
-        let param = match args.next() {
-            Some(x) => x,
-            None => {
-                if action == "list" {
-                    "none".to_owned()
-                } else {
-                    return Err("No second argument provided");
-                }
+    let param = match args.next() {
+        Some(x) => x,
+        None => {
+            if action == "list" {
+                "none".to_owned()
+            } else {
+                return Err("No second argument provided");
             }
-        };
-    }
+        }
+    };
 
     Ok((action, param))
 }
