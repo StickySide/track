@@ -1,31 +1,23 @@
 use std::env::{self, Args};
-use track::{Habit, list};
+use track::Habits;
 fn main() {
     let args = env::args();
-    let mut habits: Vec<Habit> = Vec::new();
+    let mut habits = Habits::new();
 
     let (action, param) = match parse(args) {
         Ok((action, param)) => (action, param),
-        Err(err) => panic!("{}", err),
+        Err(err) => panic!("{err}"),
     };
 
     match &action[0..] {
-        "add" => habits.push(Habit::new(param)),
+        "add" => habits.add(param),
         "remove" => (),
-        "complete" => habits
-            .iter_mut()
-            .find(|x| x.name == param)
-            .expect("Unable to find '{param}'")
-            .complete(),
-        "list" => {
-            for habit in &habits {
-                println!("{}", habit.name)
-            }
-        }
+        "complete" => habits.complete(param).unwrap(),
+        "list" => habits.list(),
         _ => panic!("Unknown argument: {action}"),
     }
 
-    list(&habits)
+    habits.list()
 }
 
 fn parse(mut args: Args) -> Result<(String, String), &'static str> {

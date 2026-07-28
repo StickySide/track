@@ -18,28 +18,31 @@ impl Habit {
     }
 }
 
-pub fn list(habits: &Vec<Habit>) -> () {
-    for habit in habits {
-        println!("{:?}", habit)
-    }
-}
-
 pub struct Habits {
     habits: Vec<Habit>,
 }
 
 impl Habits {
+    pub fn new() -> Self {
+        Habits { habits: Vec::new() }
+    }
+
+    pub fn list(&self) -> () {
+        for habit in &self.habits {
+            println!("{:?}", habit)
+        }
+    }
+
     pub fn add(&mut self, name: String) {
         self.habits.push(Habit::new(name))
     }
 
-    pub fn complete(&mut self, name: String) {
-        for habit in &mut self.habits {
-            if habit.name == name {
-                habit.complete()
-            } else {
-                panic!("No habit with that name found")
-            }
+    pub fn complete(&mut self, name: String) -> Result<(), String> {
+        if let Some(habit) = self.habits.iter_mut().find(|x| x.name == name) {
+            habit.complete();
+            Ok(())
+        } else {
+            Err("Could not find habit".to_owned())
         }
     }
 }
