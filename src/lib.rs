@@ -1,7 +1,7 @@
 use chrono::{DateTime, Local};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Habit {
     pub name: String,
     pub completed_date: Option<DateTime<Local>>,
@@ -21,7 +21,7 @@ impl Habit {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Habits {
     habits: Vec<Habit>,
 }
@@ -39,6 +39,15 @@ impl Habits {
 
     pub fn add(&mut self, name: String) {
         self.habits.push(Habit::new(name))
+    }
+
+    pub fn remove(&mut self, name: String) -> Result<(), String> {
+        if let Some(i) = self.habits.iter().position(|x| x.name == name) {
+            self.habits.remove(i);
+            Ok(())
+        } else {
+            Err(format!("Unable to find habit '{name}"))
+        }
     }
 
     pub fn complete(&mut self, name: String) -> Result<(), String> {

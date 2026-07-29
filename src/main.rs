@@ -14,22 +14,35 @@ fn main() {
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args = env::args();
-    let mut habits = Habits::new();
+    // let mut habits = Habits::new();
 
+    // Try to read data
+    let data = fs::read_to_string("data.json");
+
+    // Load habits or create new
+    let mut habits = match data {
+        Ok(x) => serde_json::from_str(&x)?,
+        Err(e) => {
+            println!("Error reading file: {e}, creating new data file");
+            Habits::new()
+        }
+    };
+
+    // Parse args
     let (action, param) = parse(args)?;
 
     match &action[0..] {
         "add" => habits.add(param),
-        "remove" => (),
+        "remove" => habits.remove(param)?,
         "complete" => habits.complete(param)?,
         "list" => habits.list(),
         _ => return Err(format!("Unknown argument: {}", action).into()),
     }
 
+    // Serialize and save data
     let serialized_data = serde_json::to_string(&habits)?;
     fs::write("data.json", &serialized_data)?;
 
-    println!("{serialized_data}");
     Ok(())
 }
 
