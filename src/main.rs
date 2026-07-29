@@ -1,23 +1,36 @@
-use std::env::{self, Args};
+use std::fs;
+use std::{
+    env::{self, Args},
+    process,
+};
 use track::Habits;
+
 fn main() {
+    if let Err(e) = run() {
+        eprintln!("Error: {e}");
+        process::exit(1);
+    }
+}
+
+fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args = env::args();
     let mut habits = Habits::new();
 
-    let (action, param) = match parse(args) {
-        Ok((action, param)) => (action, param),
-        Err(err) => panic!("{err}"),
-    };
+    let (action, param) = parse(args)?;
 
     match &action[0..] {
         "add" => habits.add(param),
         "remove" => (),
-        "complete" => habits.complete(param).unwrap(),
+        "complete" => habits.complete(param)?,
         "list" => habits.list(),
-        _ => panic!("Unknown argument: {action}"),
+        _ => return Err(format!("Unknown argument: {}", action).into()),
     }
 
-    habits.list()
+    let serialized_data = serde_json::to_string(&habits)?;
+    fs::write("data.json", &serialized_data)?;
+
+    println!("{serialized_data}");
+    Ok(())
 }
 
 fn parse(mut args: Args) -> Result<(String, String), &'static str> {

@@ -1,23 +1,27 @@
 use chrono::{DateTime, Local};
-#[derive(Debug)]
+use serde::Serialize;
+
+#[derive(Debug, Serialize)]
 pub struct Habit {
     pub name: String,
-    pub completed_dates: Vec<DateTime<Local>>,
+    pub completed_date: Option<DateTime<Local>>,
 }
 
 impl Habit {
     pub fn new(name: String) -> Self {
         Habit {
             name,
-            completed_dates: Vec::new(),
+            completed_date: None,
         }
     }
 
     pub fn complete(&mut self) -> () {
-        self.completed_dates.push(Local::now());
+        let local_time = Local::now();
+        self.completed_date = Some(local_time);
     }
 }
 
+#[derive(Debug, Serialize)]
 pub struct Habits {
     habits: Vec<Habit>,
 }
@@ -42,7 +46,7 @@ impl Habits {
             habit.complete();
             Ok(())
         } else {
-            Err("Could not find habit".to_owned())
+            Err(format!("Could not find habit: '{name}'"))
         }
     }
 }
