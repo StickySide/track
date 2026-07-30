@@ -52,8 +52,15 @@ impl Habit {
     }
 
     pub fn complete(&mut self) -> () {
-        let local_time = Local::now();
-        self.completed_date = Some(local_time);
+        let current_date = Local::now();
+        match self.completed_date {
+            Some(completed_date) => {
+                if current_date > completed_date {
+                    self.completed_date = Some(current_date)
+                }
+            }
+            None => self.completed_date = Some(current_date),
+        }
     }
 }
 
@@ -69,7 +76,11 @@ impl Habits {
 
     pub fn list(&self) -> () {
         for habit in &self.habits {
-            println!("{:?}", habit)
+            let completed = match habit.completed_date {
+                Some(x) => x.to_string(),
+                None => "Never".to_string(),
+            };
+            println!("{} Completed: {}", habit.name, completed);
         }
     }
 
