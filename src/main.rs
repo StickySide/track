@@ -32,7 +32,7 @@ fn run() -> Result<(), track::Error> {
     // Parse args
     let (action, param) = parse(args)?;
 
-    match &action[0..] {
+    match action.as_str() {
         "add" => habits.add(param),
         "remove" => habits.remove(param)?,
         "complete" => habits.complete(param)?,
