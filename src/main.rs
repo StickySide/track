@@ -3,6 +3,7 @@ use std::{
     env::{self, Args},
     process,
 };
+use track;
 use track::Habits;
 
 fn main() {
@@ -12,7 +13,7 @@ fn main() {
     }
 }
 
-fn run() -> Result<(), Box<dyn std::error::Error>> {
+fn run() -> Result<(), track::Error> {
     let args = env::args();
     // let mut habits = Habits::new();
 
@@ -36,7 +37,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         "remove" => habits.remove(param)?,
         "complete" => habits.complete(param)?,
         "list" => habits.list(),
-        _ => return Err(format!("Unknown argument: {}", action).into()),
+        _ => return Err(track::Error::UnknownArgument(action)),
     }
 
     // Serialize and save data
@@ -46,10 +47,10 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn parse(mut args: Args) -> Result<(String, String), &'static str> {
+fn parse(mut args: Args) -> Result<(String, String), track::Error> {
     let action = match args.nth(1) {
         Some(x) => x,
-        None => return Err("No arguments provided"),
+        None => return Err(track::Error::NoArguments),
     };
 
     let param = match args.next() {
@@ -58,7 +59,7 @@ fn parse(mut args: Args) -> Result<(String, String), &'static str> {
             if action == "list" {
                 "none".to_owned()
             } else {
-                return Err("No second argument provided");
+                return Err(track::Error::NoSecondArgument);
             }
         }
     };
