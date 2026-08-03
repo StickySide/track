@@ -23,10 +23,13 @@ fn run() -> Result<(), track::Error> {
     // Load habits or create new
     let mut habits = match data {
         Ok(x) => serde_json::from_str(&x)?,
-        Err(e) => {
-            println!("Error reading file: {e}, creating new data file");
-            Habits::new()
-        }
+        Err(error) => match error.kind() {
+            std::io::ErrorKind::NotFound => {
+                eprintln!("Habits file not found: {error}, creating new file");
+                Habits::new()
+            }
+            _ => return Err(track::Error::IOError(error)),
+        },
     };
 
     // Parse args
